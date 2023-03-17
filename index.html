@@ -1,0 +1,61 @@
+<div id="app"></div>
+
+<!-- Vuetify用 CSS -->
+<link
+  href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css"
+  rel="stylesheet"
+/>
+<link
+  href="https://cdn.jsdelivr.net/npm/vuetify@3.1.10/dist/vuetify.min.css"
+  rel="stylesheet"
+/>
+
+<!-- Vue.js -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- Vuetify -->
+<script src="https://cdn.jsdelivr.net/npm/vuetify@3.1.10/dist/vuetify.min.js"></script>
+<!-- axios -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<!-- Vueコード -->
+<script type="text/x-template" id="app-template">
+  <v-app>
+    <v-container>
+      <v-card v-for="(item, index) in items" v-bind:key="item.name"
+        class="mx-auto"
+        :title="item.name"
+      >
+        <v-img
+          :width="300"
+          aspect-ratio="16/9"
+          cover
+          :src="item.image_j_hunters"
+        ></v-img>
+      </v-card>
+    </v-container>
+  </v-app>
+</script>
+<script>
+  const { createApp } = Vue;
+  const { createVuetify } = Vuetify;
+
+  const vuetify = createVuetify();
+  const apiUrl = "https://hypertk.github.io/gh-pages-wild-rest-api/wild/huntable/"
+
+  const app = createApp({
+    template: "#app-template",
+    data() {
+      return {
+        items: [],
+        shuffledItems: []
+      }
+    },
+    mounted() {
+      axios.get(apiUrl)
+      .then((response) => (this.items = response.data))
+      .catch((error) => console.log(error))
+    }
+  })
+    .use(vuetify)
+    .mount("#app");
+</script>
