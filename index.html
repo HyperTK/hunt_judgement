@@ -70,8 +70,8 @@
         <v-expand-transition>
           <div v-show="show">
             <v-divider></v-divider>
-            <v-card-title v-text="shuffledItems[counter] == null ? '-' : shuffledItems[counter].name">
-            </v-card-title>
+            <v-card-text v-text="shuffledItems[counter] == null ? '-' : shuffledItems[counter].name">
+            </v-card-text>
           </div>
         </v-expand-transition>
       </v-card>
