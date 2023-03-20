@@ -21,16 +21,59 @@
 <script type="text/x-template" id="app-template">
   <v-app>
     <v-container>
-      <v-card v-for="(item, index) in items" v-bind:key="item.name"
+      <v-card
         class="mx-auto"
-        :title="item.name"
-      >
-        <v-img
-          :width="300"
-          aspect-ratio="16/9"
-          cover
-          :src="item.image_j_hunters"
-        ></v-img>
+        max-width="500">
+      <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="outlined"
+          @click="reset()">
+            リセット
+          </v-btn>
+        </v-card-actions>
+        <v-card-text class="align-center">
+          {{counter+1}} / {{shuffledItems.length}}
+        </v-card-text>
+        <v-card-text class="justify-center">
+          <v-img
+            width="350"
+            :aspect-ratio="1"
+            :src="shuffledItems[counter] == null ? '-' : shuffledItems[counter].image_j_hunters"
+          ></v-img>
+        </v-card-text>
+        <div v-if="currentAnimal != 'ノイヌ' && currentAnimal != 'ノネコ'">
+          <v-card-text>
+            ※画像出典: 大日本猟友会(http://j-hunters.com/intro/target.php)
+          </v-card-text>
+        </div>
+        <v-card-text v-if="currentAnimal == 'ノイヌ' || currentAnimal == 'ノネコ'">
+          ※画像出典: Wikipedia({{shuffledItems[counter].image_wiki}})
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn 
+          size="x-large"
+          icon="mdi-arrow-left-bold"
+          @click="prev()" />
+          <v-spacer></v-spacer>
+          <v-btn 
+            size="x-large"
+            icon="mdi-arrow-right-bold"
+            @click="next()" />
+
+          <v-btn
+            :icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+            @click="show = !show"
+          ></v-btn>
+        </v-card-actions>
+        <v-expand-transition>
+          <div v-show="show">
+            <v-divider></v-divider>
+            <v-card-title v-text="shuffledItems[counter] == null ? '-' : shuffledItems[counter].name">
+            </v-card-title>
+
+          </div>
+        </v-expand-transition>
       </v-card>
     </v-container>
   </v-app>
@@ -46,14 +89,53 @@
     template: "#app-template",
     data() {
       return {
+        show: false,
         items: [],
-        shuffledItems: []
+        shuffledItems: [],
+        counter: 0,
+        currentAnimal: ""
       }
     },
+
     mounted() {
       axios.get(apiUrl)
-      .then((response) => (this.items = response.data))
+      .then((response) => {
+            this.items = response.data
+            this.shuffledItems = this.shuffleArray(this.items)
+            this.currentAnimal = this.shuffledItems[this.counter].name
+          }
+        )
       .catch((error) => console.log(error))
+    },
+    methods: {
+      shuffleArray(array) {
+        const cloneArray = [...array]
+        for(let i = cloneArray.length - 1; i >= 0; i--) {
+          let rand = Math.floor(Math.random() * (i * 1))
+          // 配列の順番を入れ替える
+          let tempStorage = cloneArray[i]
+          cloneArray[i] = cloneArray[rand]
+          cloneArray[rand] = tempStorage
+        }
+        return cloneArray
+      },
+      next() {
+        if(this.shuffledItems.length <= this.counter + 1)return
+        this.show = false
+        this.counter++
+        this.currentAnimal = this.shuffledItems[this.counter].name
+      },
+      prev() {
+        if(this.counter == 0) return
+        this.show = false
+        this.counter--
+        this.currentAnimal = this.shuffledItems[this.counter].name
+      },
+      reset() {
+        this.shuffledItems = this.shuffleArray(this.items)
+        this.counter = 0
+        this.show = false
+      }
     }
   })
     .use(vuetify)
