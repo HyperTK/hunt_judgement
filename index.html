@@ -22,8 +22,9 @@
   <v-app>
     <v-container>
       <v-card
-        class="mx-auto"
-        max-width="500">
+        class="mx-auto mt-3"
+        max-width="500"
+        variant="outlined">
       <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="outlined"
@@ -38,12 +39,12 @@
           <v-img
             width="350"
             :aspect-ratio="1"
-            :src="shuffledItems[counter] == null ? '-' : shuffledItems[counter].image_j_hunters"
+            :src="shuffledItems[counter] == null ? '-' : shuffledItems[counter].image"
           ></v-img>
         </v-card-text>
         <div v-if="currentAnimal != 'ノイヌ' && currentAnimal != 'ノネコ'">
-          <v-card-text>
-            ※画像出典: 大日本猟友会(http://j-hunters.com/intro/target.php)
+          <v-card-text v-if="shuffledItems[counter] != null">
+            ※画像出典: {{shuffledItems[counter].source}}
           </v-card-text>
         </div>
         <v-card-text v-if="currentAnimal == 'ノイヌ' || currentAnimal == 'ノネコ'">
@@ -71,10 +72,19 @@
             <v-divider></v-divider>
             <v-card-title v-text="shuffledItems[counter] == null ? '-' : shuffledItems[counter].name">
             </v-card-title>
-
           </div>
         </v-expand-transition>
       </v-card>
+      <v-expansion-panels class="mt-3">
+        <v-expansion-panel title="設定">
+          <v-expansion-panel-text>
+            <v-radio-group inline label="出題画像" v-model="settingImage" @change="onChangeImage">
+              <v-radio label="写真" value="photo"></v-radio>
+              <v-radio label="イラスト" value="illust"></v-radio>
+            </v-radio-group>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
     </v-container>
   </v-app>
 </script>
@@ -93,7 +103,8 @@
         items: [],
         shuffledItems: [],
         counter: 0,
-        currentAnimal: ""
+        currentAnimal: "",
+        settingImage: "photo"
       }
     },
 
@@ -101,13 +112,44 @@
       axios.get(apiUrl)
       .then((response) => {
             this.items = response.data
-            this.shuffledItems = this.shuffleArray(this.items)
+            this.generateProblem(this.settingImage)
             this.currentAnimal = this.shuffledItems[this.counter].name
           }
         )
       .catch((error) => console.log(error))
     },
     methods: {
+      init() {
+        this.counter = 0
+        this.shuffledItems = []
+        this.show = false
+      },
+      onChangeImage() {
+        this.generateProblem(this.settingImage)
+      },
+      generateProblem(type) {
+        // パラメータ初期化
+        this.init()
+        const arr = this.shuffleArray(this.items)
+        // 初期設定は実写画像を設定
+        for(const i of arr) {
+          console.log(i)
+          var image = ""
+          var source = ""
+          // 実写の場合
+          if(type == "photo") {
+            image = i.image_wiki
+            source = `Wikipedia(${i.image_wiki})`
+          // イラストの場合
+          } else {
+            image = i.image_j_hunters
+            source = "大日本猟友会(http://j-hunters.com/intro/target.php)"
+          }
+          i.image = image
+          i.source = source
+          this.shuffledItems.push(i)
+        }
+      },
       shuffleArray(array) {
         const cloneArray = [...array]
         for(let i = cloneArray.length - 1; i >= 0; i--) {
@@ -132,9 +174,9 @@
         this.currentAnimal = this.shuffledItems[this.counter].name
       },
       reset() {
-        this.shuffledItems = this.shuffleArray(this.items)
-        this.counter = 0
-        this.show = false
+        this.init()
+        // 現在の出題画像の設定で配列をリセット
+        this.generateProblem(this.settingImage)
       }
     }
   })
