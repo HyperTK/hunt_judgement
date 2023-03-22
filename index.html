@@ -32,7 +32,7 @@
             リセット
           </v-btn>
         </v-card-actions>
-        <v-card-text class="align-center">
+        <v-card-text class="justify-center">
           {{counter+1}} / {{shuffledItems.length}}
         </v-card-text>
         <v-card-text class="justify-center">
@@ -42,15 +42,6 @@
             :src="shuffledItems[counter] == null ? '-' : shuffledItems[counter].image"
           ></v-img>
         </v-card-text>
-        <div v-if="currentAnimal != 'ノイヌ' && currentAnimal != 'ノネコ'">
-          <v-card-text v-if="shuffledItems[counter] != null">
-            ※画像出典: {{shuffledItems[counter].source}}
-          </v-card-text>
-        </div>
-        <v-card-text v-if="currentAnimal == 'ノイヌ' || currentAnimal == 'ノネコ'">
-          ※画像出典: Wikipedia({{shuffledItems[counter].image_wiki}})
-        </v-card-text>
-
         <v-card-actions>
           <v-btn 
           size="x-large"
@@ -71,6 +62,14 @@
           <div v-show="show">
             <v-divider></v-divider>
             <v-card-text v-text="shuffledItems[counter] == null ? '-' : shuffledItems[counter].name">
+            </v-card-text>
+            <div v-if="currentAnimal != 'ノイヌ' && currentAnimal != 'ノネコ'">
+              <v-card-text v-if="shuffledItems[counter] != null">
+                ※画像出典: {{shuffledItems[counter].source}}
+              </v-card-text>
+            </div>
+            <v-card-text v-if="currentAnimal == 'ノイヌ' || currentAnimal == 'ノネコ'">
+              ※画像出典: Wikipedia({{shuffledItems[counter].image_wiki}})
             </v-card-text>
           </div>
         </v-expand-transition>
